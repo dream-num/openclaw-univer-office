@@ -11,6 +11,7 @@ const config: UniverOfficeConfig = {
   commandTimeoutMs: 120_000,
   maxOutputBytes: 2 * 1024 * 1024,
   screenshotMaxImages: 12,
+  viewerUrl: "https://office.example.com",
 };
 
 function findTool(tools: AnyAgentTool[], name: string): AnyAgentTool {
@@ -87,6 +88,69 @@ describe("Univer Office tools", () => {
       cwd: workspace,
       signal: undefined,
     });
+  });
+
+  it("uses the configured public viewer URL for collaboration links", async () => {
+    const workspace = await mkdtemp(path.join(os.tmpdir(), "univer-office-review-"));
+    const { runner, tools } = createHarness(workspace);
+    const result = await execute(findTool(tools, "univer_office_worktree"), {
+      action: "review_url",
+      worktree_id: "wt-1",
+      unit_id: "unit-1",
+    });
+    expect(runner).toHaveBeenCalledWith({
+      args: [
+        "open",
+        "--worktree",
+        "wt-1",
+        "--unit",
+        "unit-1",
+        "--viewer-url",
+        "https://office.example.com",
+        "--json",
+      ],
+      cwd: workspace,
+      signal: undefined,
+    });
+    expect(result.details).toMatchObject({
+      guidance: expect.stringContaining("does not grant access by itself"),
+    });
+  });
+
+  it("can expose an existing Team Space Worktree after approval", async () => {
+    const workspace = await mkdtemp(path.join(os.tmpdir(), "univer-office-visibility-"));
+    const { runner, tools } = createHarness(workspace);
+    await execute(findTool(tools, "univer_office_worktree"), {
+      action: "set_visibility",
+      worktree_id: "wt-1",
+      visibility: "space",
+    });
+    expect(runner).toHaveBeenCalledWith({
+      args: [
+        "worktree",
+        "update",
+        "wt-1",
+        "--visibility",
+        "space",
+        "--json",
+      ],
+      cwd: workspace,
+      signal: undefined,
+    });
+  });
+
+  it("rejects Space visibility on a user-scoped Worktree", async () => {
+    const workspace = await mkdtemp(path.join(os.tmpdir(), "univer-office-scope-"));
+    const { runner, tools } = createHarness(workspace);
+    await expect(
+      execute(findTool(tools, "univer_office_worktree"), {
+        action: "create",
+        name: "Private task",
+        scope: "user",
+        visibility: "space",
+      }),
+    ).rejects.toThrow("visibility space requires scope space");
+    expect(runner).not.toHaveBeenCalled();
   });
 
   it("resolves imports inside the active workspace", async () => {

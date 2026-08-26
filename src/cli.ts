@@ -7,6 +7,7 @@ export type UniverOfficeConfig = {
   commandTimeoutMs: number;
   maxOutputBytes: number;
   screenshotMaxImages: number;
+  viewerUrl?: string;
 };
 
 export type UniverCliInvocation = {
@@ -31,6 +32,29 @@ const DEFAULT_CONFIG: UniverOfficeConfig = {
   screenshotMaxImages: 12,
 };
 
+function readViewerUrl(value: unknown): string | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (typeof value !== "string" || !value.trim()) {
+    throw new Error("viewerUrl must be an absolute HTTP(S) URL");
+  }
+  const raw = value.trim();
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw new Error("viewerUrl must be an absolute HTTP(S) URL");
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    throw new Error("viewerUrl must be an absolute HTTP(S) URL");
+  }
+  if (url.username || url.password) {
+    throw new Error("viewerUrl must not contain credentials");
+  }
+  return raw;
+}
+
 function readPositiveInteger(
   value: unknown,
   fallback: number,
@@ -49,6 +73,7 @@ export function parseUniverOfficeConfig(value: unknown): UniverOfficeConfig {
   const cliPath = typeof config.cliPath === "string" && config.cliPath.trim()
     ? config.cliPath.trim()
     : DEFAULT_CONFIG.cliPath;
+  const viewerUrl = readViewerUrl(config.viewerUrl);
   return {
     cliPath,
     commandTimeoutMs: readPositiveInteger(
@@ -69,6 +94,7 @@ export function parseUniverOfficeConfig(value: unknown): UniverOfficeConfig {
       1,
       30,
     ),
+    ...(viewerUrl ? { viewerUrl } : {}),
   };
 }
 

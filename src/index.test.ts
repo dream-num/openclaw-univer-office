@@ -29,6 +29,16 @@ describe("univer-office plugin", () => {
       { action: "discard", worktree_id: "wt-discard" },
       "Discard Univer Office draft",
     ],
+    [
+      "univer_office_worktree",
+      { action: "create", scope: "space", visibility: "space" },
+      "Share Univer Office draft with Team Space",
+    ],
+    [
+      "univer_office_worktree",
+      { action: "set_visibility", worktree_id: "wt-share", visibility: "space" },
+      "Share Univer Office draft with Team Space",
+    ],
   ])("requires approval for %s", (toolName, params, title) => {
     const on = vi.fn();
     entry.register!({ pluginConfig: {}, registerTool: vi.fn(), on } as never);

@@ -200,6 +200,7 @@ function requireSpaceForScope(params: ToolParams, scope: string): string | undef
 async function buildWorktreeArgs(
   params: ToolParams,
   context: OpenClawPluginToolContext,
+  config: UniverOfficeConfig,
 ): Promise<string[]> {
   const action = requiredString(params, "action");
   const worktreeId = optionalString(params, "worktree_id");
@@ -219,6 +220,10 @@ async function buildWorktreeArgs(
   if (action === "create") {
     const scope = requiredString(params, "scope");
     const spaceId = requireSpaceForScope(params, scope);
+    const visibility = optionalString(params, "visibility");
+    if (scope !== "space" && visibility === "space") {
+      throw new Error("visibility space requires scope space");
+    }
     const args = [
       "worktree",
       "create",
@@ -228,9 +233,19 @@ async function buildWorktreeArgs(
       scope,
     ];
     appendOption(args, "--space", spaceId);
-    appendOption(args, "--visibility", optionalString(params, "visibility"));
+    appendOption(args, "--visibility", visibility);
     appendOption(args, "--idempotency-key", optionalString(params, "idempotency_key"));
     return [...args, "--json"];
+  }
+  if (action === "set_visibility") {
+    return [
+      "worktree",
+      "update",
+      requiredString(params, "worktree_id"),
+      "--visibility",
+      requiredString(params, "visibility"),
+      "--json",
+    ];
   }
   if (action === "stage_resource") {
     return [
@@ -287,14 +302,15 @@ async function buildWorktreeArgs(
     return ["worktree", action, worktreeId, "--json"];
   }
   if (action === "review_url") {
-    return [
+    const args = [
       "open",
       "--worktree",
       requiredString(params, "worktree_id"),
       "--unit",
       requiredString(params, "unit_id"),
-      "--json",
     ];
+    appendOption(args, "--viewer-url", config.viewerUrl);
+    return [...args, "--json"];
   }
   throw new Error(`Unknown worktree action: ${action}`);
 }
@@ -305,7 +321,7 @@ function createWorktreeTool(dependencies: ToolDependencies): AnyAgentTool {
     name: "univer_office_worktree",
     label: "Univer Office Worktree",
     description:
-      "Create an isolated Office task, stage or create a Unit, submit it for review, reopen it, or perform user-approved merge/discard.",
+      "Create an isolated Office task, control Team Space visibility, stage or create a Unit, submit it for review, reopen it, or perform user-approved merge/discard.",
     parameters: Type.Object(
       {
         action: Type.Enum(
@@ -314,6 +330,7 @@ function createWorktreeTool(dependencies: ToolDependencies): AnyAgentTool {
             "get",
             "list_units",
             "create",
+            "set_visibility",
             "stage_resource",
             "create_unit",
             "import",
@@ -345,13 +362,15 @@ function createWorktreeTool(dependencies: ToolDependencies): AnyAgentTool {
     executionMode: "sequential",
     async execute(_toolCallId, params: ToolParams, signal?: AbortSignal) {
       const action = requiredString(params, "action");
-      const args = await buildWorktreeArgs(params, context);
+      const args = await buildWorktreeArgs(params, context, dependencies.config);
       const output = await runner({ args, cwd: resolveWorkspaceDir(context), signal });
       const guidance = action === "ready"
         ? "Read back the ready state, then call review_url and give the URL plus Worktree and Unit ids to the user. Ready does not merge."
-        : action === "review_url"
-          ? "This review URL opens on both mobile and desktop. The user can inspect and edit in the full Univer Workspace."
-          : undefined;
+        : action === "set_visibility"
+          ? "Space visibility lets members of the owning Team Space see this Worktree. It does not create anonymous access."
+          : action === "review_url"
+            ? "Share this URL with authorized collaborators. It opens the full Univer Workspace on phone or desktop, but the URL does not grant access by itself; collaborators must sign in and have access to the owning Team Space."
+            : undefined;
       return jsonToolResult(`worktree.${action}`, output, guidance);
     },
   };

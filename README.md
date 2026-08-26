@@ -7,6 +7,19 @@ user's personal and team Office files, create isolated task Worktrees, edit Shee
 Board Units through the exact Univer Facade API, verify structure and layout, and hand a mobile- and
 desktop-friendly review URL back to the user.
 
+Yes, it supports realtime collaboration. OpenClaw and the plugin can run on your Mac while you
+share one Univer Workspace link with teammates on phones or PCs. Your Mac is the Agent terminal;
+Univer Workspace remains the collaboration and authorization service.
+
+```text
+OpenClaw + plugin + CLI on your Mac
+                |
+                v
+       shared Univer Worktree
+          /             \
+ phone browser       PC browser
+```
+
 ## Why this shape
 
 - OpenClaw owns conversation, channels, approvals, and delivery.
@@ -80,6 +93,65 @@ If the CLI is not on the Gateway process `PATH`, configure an absolute binary pa
 
 Restart the Gateway after installation or configuration changes.
 
+## Share a collaborative Worktree
+
+Use a Team Space Worktree with Space visibility when other people should work in the same draft:
+
+```text
+scope=space + visibility=space -> visible to members of that Team Space
+scope=user or visibility=private -> private Agent draft
+```
+
+Creating a Space-visible Worktree, or changing an existing Team Space Worktree to Space visibility,
+raises an OpenClaw approval prompt. After approval, ask OpenClaw to generate the review URL and send
+it to your collaborators. They sign in to Univer Workspace and open the same draft on phone or PC.
+Presence, realtime edits, comments, history, and the Worktree review lifecycle stay in Univer.
+
+The link is not a bearer token and does not create anonymous access. Invite each collaborator to the
+owning Team Space first. A Personal Space or user-scoped Worktree remains private even if someone has
+its URL.
+
+For live co-editing, share the URL while the Worktree is still `draft`. Before final checks, make sure
+collaborators have finished their edits, inspect the latest stored content, then mark it `ready`. Ready
+creates the review boundary but does not merge. Reopen for another editing round or merge only after
+the user approves.
+
+### Choose the URL collaborators open
+
+By default, the CLI builds review links from `workspace.origin`. This is enough for the hosted
+Workspace at `https://workspace.univer.plus/` and for deployments where the API and Web editor use
+the same public URL.
+
+Set `viewerUrl` when collaborators must open a different Web address—for example, a Tailscale,
+intranet, or HTTPS reverse-proxy address:
+
+```json5
+{
+  plugins: {
+    entries: {
+      "univer-office": {
+        enabled: true,
+        config: {
+          viewerUrl: "https://office.example.com",
+        },
+      },
+    },
+  },
+}
+```
+
+`viewerUrl` changes only the generated review link. Configure the CLI's Workspace API endpoint
+separately when needed:
+
+```bash
+univer-workspace-cli config set workspace.origin https://workspace-api.example.com
+```
+
+Do not share a `localhost` URL; it points back to each recipient's own device. For a Workspace hosted
+on your Mac, give it a stable LAN, Tailscale, or authenticated HTTPS address and use that address as
+`viewerUrl`. Expose the Univer Web/collaboration service—not the OpenClaw Gateway—and keep Workspace
+authentication enabled.
+
 ## Sign in
 
 Ask OpenClaw to connect to Univer Workspace. The plugin starts the CLI's browser approval flow and
@@ -88,8 +160,9 @@ you are done. The completion call is separately approval-gated and is never poll
 
 ## Typical request
 
-> Find my Q2 sales workbook, create a private task draft, add a management dashboard, verify the
-> formulas and layout, then send me a review link. Do not merge until I approve it.
+> Find our Q2 sales workbook, create a Team Space collaborative draft, let the Space members review
+> it from phone or PC, verify the formulas and layout, then send me the link. Do not merge until I
+> approve it.
 
 The expected lifecycle is:
 
@@ -116,6 +189,7 @@ The plugin invokes the CLI with an argument vector rather than a shell command.
 OpenClaw prompts before:
 
 - completing a pending Univer browser sign-in;
+- making a Worktree visible to Team Space members;
 - merging a Worktree into the current file;
 - discarding an unmerged Worktree;
 
@@ -144,7 +218,7 @@ For a package-shape smoke test:
 
 ```bash
 npm pack --pack-destination /tmp
-openclaw plugins install npm-pack:/tmp/dream-num-openclaw-univer-office-0.1.0.tgz --force
+openclaw plugins install npm-pack:/tmp/dream-num-openclaw-univer-office-0.2.0.tgz --force
 openclaw plugins inspect univer-office --runtime --json
 ```
 

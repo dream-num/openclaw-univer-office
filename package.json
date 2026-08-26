@@ -1,6 +1,6 @@
 {
   "name": "@dream-num/openclaw-univer-office",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Univer Office artifact creation, isolated review, and delivery tools for OpenClaw.",
   "type": "module",

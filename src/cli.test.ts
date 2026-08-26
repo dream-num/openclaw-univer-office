@@ -25,13 +25,23 @@ describe("parseUniverOfficeConfig", () => {
         commandTimeoutMs: 180_000,
         maxOutputBytes: 4_000_000,
         screenshotMaxImages: 20,
+        viewerUrl: "https://office.example.com",
       }),
     ).toEqual({
       cliPath: "/opt/univer/bin/univer-workspace-cli",
       commandTimeoutMs: 180_000,
       maxOutputBytes: 4_000_000,
       screenshotMaxImages: 20,
+      viewerUrl: "https://office.example.com",
     });
+  });
+
+  it.each([
+    "workspace.example.com",
+    "file:///tmp/workspace",
+    "https://user:secret@workspace.example.com",
+  ])("rejects unsafe viewer URL %s", (viewerUrl) => {
+    expect(() => parseUniverOfficeConfig({ viewerUrl })).toThrow(/viewerUrl/);
   });
 });
 

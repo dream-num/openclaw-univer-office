@@ -17,6 +17,21 @@ do not replace this workflow with a local spreadsheet, document, or slide writer
 - Never reuse a `merged` or `discarded` Worktree.
 - Find an existing file by stable Resource identity before staging it. Do not pick an ambiguous name.
 
+## Collaboration mode
+
+- For live multi-user work, use a Team Space Worktree with `scope: "space"` and
+  `visibility: "space"`. This requires OpenClaw approval because it expands who can see the draft.
+- For a private Agent draft, use `scope: "user"` or keep Team Space visibility `private`.
+- Use `set_visibility` only for an existing Team Space Worktree. Changing it to `space` also requires
+  approval.
+- Space visibility does not create anonymous access. Collaborators must sign in and belong to the
+  owning Team Space; a shared URL alone grants nothing.
+- `review_url` may be used while the Worktree is `draft` for live co-editing. Before final
+  verification, coordinate with collaborators, inspect the latest content, and avoid marking Ready
+  while someone is still editing.
+- The plugin's configured `viewerUrl` supplies the shareable Web base URL. It does not start a server,
+  change `workspace.origin`, or expose the OpenClaw Gateway.
+
 ## Workflow
 
 1. Call `univer_office_connect` with `status`. If unauthenticated, call `start_login`, show the URL
@@ -29,8 +44,9 @@ do not replace this workflow with a local spreadsheet, document, or slide writer
 5. Edit with `execute`. Read back with `inspect`; recalculate or lint where relevant.
 6. Use `univer_office_handoff` with `screenshot` for visual verification. Inspect Sheet layout,
    Doc pagination, every Slide page, and the relevant Base or Board view.
-7. Mark the Worktree `ready`, read it back, then request `review_url`. Return the URL together with
-   the Worktree and Unit ids. The URL opens the full Univer Workspace on phone and PC.
+7. For live collaboration, request `review_url` after the Unit exists and share it with authorized
+   Team Space members. For final handoff, mark the Worktree `ready`, read it back, then return the
+   same URL together with the Worktree and Unit ids. The URL opens Univer Workspace on phone and PC.
 8. Reopen for requested changes. Merge or discard only after an explicit user request and the
    OpenClaw approval prompt.
 9. Export only when the user needs an `.xlsx`, `.csv`, `.tsv`, `.docx`, or `.pptx` deliverable.

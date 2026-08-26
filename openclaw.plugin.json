@@ -2,7 +2,7 @@
   "id": "univer-office",
   "name": "Univer Office",
   "description": "Create, edit, inspect, review, approve, and deliver Office artifacts through Univer Workspace.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "activation": {
     "onStartup": true
   },
@@ -47,6 +47,11 @@
         "minLength": 1,
         "description": "Path or command name for univer-workspace-cli."
       },
+      "viewerUrl": {
+        "type": "string",
+        "pattern": "^https?://",
+        "description": "Public or private-network Univer Web base URL used in review links. Defaults to the configured Workspace origin."
+      },
       "commandTimeoutMs": {
         "type": "integer",
         "minimum": 1000,
@@ -71,6 +76,10 @@
     "cliPath": {
       "label": "Workspace CLI",
       "help": "Defaults to univer-workspace-cli on PATH."
+    },
+    "viewerUrl": {
+      "label": "Shareable Univer Web URL",
+      "help": "Set this when the Workspace API origin is not the URL collaborators can open."
     },
     "commandTimeoutMs": {
       "label": "Command timeout (ms)",

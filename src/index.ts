@@ -57,6 +57,24 @@ const univerOfficePlugin: OpenClawPluginDefinition = definePluginEntry({
         };
       }
 
+      if (
+        event.toolName === "univer_office_worktree" &&
+        ((action === "create" && event.params.scope === "space") ||
+          action === "set_visibility") &&
+        event.params.visibility === "space"
+      ) {
+        return {
+          requireApproval: {
+            title: "Share Univer Office draft with Team Space",
+            description: action === "create"
+              ? "Allow members of the selected Team Space to see the new Worktree."
+              : `Allow members of the selected Team Space to see Worktree ${readBoundedLabel(event.params, "worktree_id")}.`,
+            severity: "warning",
+            allowedDecisions: ["allow-once", "deny"],
+          },
+        };
+      }
+
       if (event.toolName === "univer_office_worktree" && action === "discard") {
         return {
           requireApproval: {
