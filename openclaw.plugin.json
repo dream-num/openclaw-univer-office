@@ -1,0 +1,88 @@
+{
+  "id": "univer-office",
+  "name": "Univer Office",
+  "description": "Create, edit, inspect, review, approve, and deliver Office artifacts through Univer Workspace.",
+  "version": "0.1.0",
+  "activation": {
+    "onStartup": true
+  },
+  "skills": ["./skills"],
+  "contracts": {
+    "tools": [
+      "univer_office_connect",
+      "univer_office_files",
+      "univer_office_worktree",
+      "univer_office_content",
+      "univer_office_handoff"
+    ]
+  },
+  "toolMetadata": {
+    "univer_office_connect": {
+      "profiles": ["full"],
+      "sideEffecting": true
+    },
+    "univer_office_files": {
+      "profiles": ["full"],
+      "replaySafe": true
+    },
+    "univer_office_worktree": {
+      "profiles": ["full"],
+      "sideEffecting": true
+    },
+    "univer_office_content": {
+      "profiles": ["full"],
+      "sideEffecting": true
+    },
+    "univer_office_handoff": {
+      "profiles": ["full"],
+      "sideEffecting": true
+    }
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "cliPath": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Path or command name for univer-workspace-cli."
+      },
+      "commandTimeoutMs": {
+        "type": "integer",
+        "minimum": 1000,
+        "maximum": 600000,
+        "default": 120000
+      },
+      "maxOutputBytes": {
+        "type": "integer",
+        "minimum": 1024,
+        "maximum": 16777216,
+        "default": 2097152
+      },
+      "screenshotMaxImages": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 30,
+        "default": 12
+      }
+    }
+  },
+  "uiHints": {
+    "cliPath": {
+      "label": "Workspace CLI",
+      "help": "Defaults to univer-workspace-cli on PATH."
+    },
+    "commandTimeoutMs": {
+      "label": "Command timeout (ms)",
+      "advanced": true
+    },
+    "maxOutputBytes": {
+      "label": "Maximum CLI output bytes",
+      "advanced": true
+    },
+    "screenshotMaxImages": {
+      "label": "Maximum screenshot images",
+      "advanced": true
+    }
+  }
+}
