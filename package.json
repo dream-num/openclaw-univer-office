@@ -1,6 +1,6 @@
 {
   "name": "@dream-num/openclaw-univer-office",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "private": true,
   "description": "Univer Workspace automation, review, and delivery tools for OpenClaw.",
   "type": "module",

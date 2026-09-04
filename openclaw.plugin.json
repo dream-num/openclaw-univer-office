@@ -2,7 +2,7 @@
   "id": "univer-office",
   "name": "Univer Office",
   "description": "Create, edit, inspect, review, approve, and deliver Office artifacts through Univer Workspace.",
-  "version": "0.5.0",
+  "version": "0.5.2",
   "activation": {
     "onStartup": true
   },
