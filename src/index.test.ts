@@ -17,6 +17,24 @@ describe("univer-office plugin", () => {
     });
   });
 
+  it("registers the complete Workspace companion only when configured", () => {
+    const registerService = vi.fn();
+    entry.register!({
+      pluginConfig: {
+        selfHosted: {
+          workspaceRoot: "/srv/univer-workspace/apps/workspace",
+          nodePath: "/opt/node-24/bin/node",
+        },
+      },
+      registerTool: vi.fn(),
+      registerService,
+      on: vi.fn(),
+    } as never);
+    expect(registerService).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "univer-workspace" }),
+    );
+  });
+
   it.each([
     ["univer_office_connect", { action: "complete_login" }, "Complete Univer Workspace sign-in"],
     [

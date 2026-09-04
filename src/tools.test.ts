@@ -113,6 +113,9 @@ describe("Univer Office tools", () => {
       signal: undefined,
     });
     expect(result.details).toMatchObject({
+      guidance: expect.stringContaining("complete Univer Workspace /worktrees experience"),
+    });
+    expect(result.details).toMatchObject({
       guidance: expect.stringContaining("does not grant access by itself"),
     });
   });

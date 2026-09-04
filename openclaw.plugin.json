@@ -2,7 +2,7 @@
   "id": "univer-office",
   "name": "Univer Office",
   "description": "Create, edit, inspect, review, approve, and deliver Office artifacts through Univer Workspace.",
-  "version": "0.2.0",
+  "version": "0.5.0",
   "activation": {
     "onStartup": true
   },
@@ -50,7 +50,40 @@
       "viewerUrl": {
         "type": "string",
         "pattern": "^https?://",
-        "description": "Public or private-network Univer Web base URL used in review links. Defaults to the configured Workspace origin."
+        "description": "Base URL of the complete Univer Workspace web application used in review links. Defaults to the configured Workspace origin."
+      },
+      "selfHosted": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["workspaceRoot", "nodePath"],
+        "properties": {
+          "workspaceRoot": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Absolute path to apps/workspace in a built univer-workspace checkout."
+          },
+          "nodePath": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Absolute path to a Node.js 24 executable used by Univer Workspace."
+          },
+          "host": {
+            "type": "string",
+            "minLength": 1,
+            "default": "127.0.0.1"
+          },
+          "port": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535,
+            "default": 3017
+          },
+          "dataDir": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Optional absolute persistence directory. Defaults to the OpenClaw state directory."
+          }
+        }
       },
       "commandTimeoutMs": {
         "type": "integer",
@@ -78,8 +111,13 @@
       "help": "Defaults to univer-workspace-cli on PATH."
     },
     "viewerUrl": {
-      "label": "Shareable Univer Web URL",
-      "help": "Set this when the Workspace API origin is not the URL collaborators can open."
+      "label": "Univer Workspace Web URL",
+      "help": "Set this only to a deployment of the complete Univer Workspace app, never to a standalone editor or review shell."
+    },
+    "selfHosted": {
+      "label": "Self-hosted Workspace",
+      "help": "Run a built, complete Univer Workspace as an OpenClaw companion service.",
+      "advanced": true
     },
     "commandTimeoutMs": {
       "label": "Command timeout (ms)",
