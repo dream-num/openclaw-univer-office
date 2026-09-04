@@ -3,6 +3,15 @@
   "version": "0.5.2",
   "private": true,
   "description": "Univer Workspace automation, review, and delivery tools for OpenClaw.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dream-num/openclaw-univer-office.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dream-num/openclaw-univer-office/issues"
+  },
+  "homepage": "https://github.com/dream-num/openclaw-univer-office#readme",
   "type": "module",
   "engines": {
     "node": ">=22.22.3"
@@ -20,7 +29,8 @@
     "skills",
     "openclaw.plugin.json",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "NOTICE"
   ],
   "peerDependencies": {
     "openclaw": ">=2026.5.17"
