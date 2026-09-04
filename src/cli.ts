@@ -8,6 +8,15 @@ export type UniverOfficeConfig = {
   maxOutputBytes: number;
   screenshotMaxImages: number;
   viewerUrl?: string;
+  selfHosted?: SelfHostedWorkspaceConfig;
+};
+
+export type SelfHostedWorkspaceConfig = {
+  workspaceRoot: string;
+  nodePath: string;
+  host: string;
+  port: number;
+  dataDir?: string;
 };
 
 export type UniverCliInvocation = {
@@ -55,6 +64,41 @@ function readViewerUrl(value: unknown): string | undefined {
   return raw;
 }
 
+function readRequiredAbsolutePath(value: unknown, name: string): string {
+  if (typeof value !== "string" || !value.trim() || !path.isAbsolute(value.trim())) {
+    throw new Error(`${name} must be an absolute path`);
+  }
+  return path.normalize(value.trim());
+}
+
+function readOptionalAbsolutePath(value: unknown, name: string): string | undefined {
+  return value === undefined ? undefined : readRequiredAbsolutePath(value, name);
+}
+
+function readSelfHostedWorkspace(value: unknown): SelfHostedWorkspaceConfig | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("selfHosted must be an object");
+  }
+  const input = value as Record<string, unknown>;
+  const host = typeof input.host === "string" && input.host.trim()
+    ? input.host.trim()
+    : "127.0.0.1";
+  const dataDir = readOptionalAbsolutePath(input.dataDir, "selfHosted.dataDir");
+  return {
+    workspaceRoot: readRequiredAbsolutePath(
+      input.workspaceRoot,
+      "selfHosted.workspaceRoot",
+    ),
+    nodePath: readRequiredAbsolutePath(input.nodePath, "selfHosted.nodePath"),
+    host,
+    port: readPositiveInteger(input.port, 3_017, 1, 65_535),
+    ...(dataDir ? { dataDir } : {}),
+  };
+}
+
 function readPositiveInteger(
   value: unknown,
   fallback: number,
@@ -74,6 +118,7 @@ export function parseUniverOfficeConfig(value: unknown): UniverOfficeConfig {
     ? config.cliPath.trim()
     : DEFAULT_CONFIG.cliPath;
   const viewerUrl = readViewerUrl(config.viewerUrl);
+  const selfHosted = readSelfHostedWorkspace(config.selfHosted);
   return {
     cliPath,
     commandTimeoutMs: readPositiveInteger(
@@ -95,6 +140,7 @@ export function parseUniverOfficeConfig(value: unknown): UniverOfficeConfig {
       30,
     ),
     ...(viewerUrl ? { viewerUrl } : {}),
+    ...(selfHosted ? { selfHosted } : {}),
   };
 }
 

@@ -4,6 +4,7 @@ import {
 } from "openclaw/plugin-sdk/plugin-entry";
 import { createUniverCliRunner, parseUniverOfficeConfig } from "./cli.js";
 import { createUniverOfficeTools, UNIVER_OFFICE_TOOL_NAMES } from "./tools.js";
+import { createSelfHostedWorkspaceService } from "./workspace-service.js";
 
 function readAction(params: Record<string, unknown>): string | undefined {
   const value = params.action;
@@ -26,6 +27,10 @@ const univerOfficePlugin: OpenClawPluginDefinition = definePluginEntry({
   register(api) {
     const config = parseUniverOfficeConfig(api.pluginConfig);
     const runner = createUniverCliRunner(config);
+
+    if (config.selfHosted) {
+      api.registerService(createSelfHostedWorkspaceService(config.selfHosted, config.cliPath));
+    }
 
     api.registerTool(
       (context) => createUniverOfficeTools({ config, context, runner }),

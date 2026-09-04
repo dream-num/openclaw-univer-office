@@ -369,7 +369,7 @@ function createWorktreeTool(dependencies: ToolDependencies): AnyAgentTool {
         : action === "set_visibility"
           ? "Space visibility lets members of the owning Team Space see this Worktree. It does not create anonymous access."
           : action === "review_url"
-            ? "Share this URL with authorized collaborators. It opens the full Univer Workspace on phone or desktop, but the URL does not grant access by itself; collaborators must sign in and have access to the owning Team Space."
+            ? "Share this URL with authorized collaborators. It must open the complete Univer Workspace /worktrees experience on phone or desktop, not a standalone editor shell. The URL does not grant access by itself; collaborators must sign in and have access to the owning Team Space."
             : undefined;
       return jsonToolResult(`worktree.${action}`, output, guidance);
     },

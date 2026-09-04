@@ -35,14 +35,15 @@ OpenClaw + plugin + CLI on your Mac
 
 - Node.js `>=22.22.3`
 - OpenClaw `>=2026.5.17`
-- `univer-workspace-cli` available on the Gateway host
+- `univer-workspace-cli` 0.5.1 or newer available on the Gateway host
 - Access to a Univer Workspace deployment
 
 Install the Workspace CLI used by DreamNum deployments:
 
 ```bash
 npm install -g univer-workspace-cli --registry=https://insider-npm-registry.univer.work/
-univer-workspace-cli doctor
+univer-workspace-cli --version
+univer-workspace-cli config get workspace.origin
 ```
 
 The CLI defaults to `https://workspace.univer.plus/`. Configure another deployment only when needed:
@@ -116,14 +117,58 @@ collaborators have finished their edits, inspect the latest stored content, then
 creates the review boundary but does not merge. Reopen for another editing round or merge only after
 the user approves.
 
+## Run your own complete Workspace with OpenClaw
+
+The plugin can supervise a built `univer-workspace` application as a Gateway companion service. This
+uses the real Workspace Browser, product API, Collaboration server, Worktree service, authentication,
+and SQLite stores; it does not replace them with a standalone editor shell.
+
+Build only the Workspace application with Node.js 24. For a non-local browser address, provide a
+Univer browser license issued for that hostname at build time:
+
+```bash
+cd /path/to/univer-workspace
+VITE_UNIVER_LICENSE="$UNIVER_WORKSPACE_BROWSER_LICENSE" \
+  pnpm --filter @univerjs/univer-workspace build
+```
+
+Then configure the plugin with the built application and public URL:
+
+```json5
+{
+  plugins: {
+    entries: {
+      "univer-office": {
+        enabled: true,
+        config: {
+          viewerUrl: "https://office.example.com",
+          selfHosted: {
+            workspaceRoot: "/path/to/univer-workspace/apps/workspace",
+            nodePath: "/absolute/path/to/node-24/bin/node",
+            host: "127.0.0.1",
+            port: 3017,
+          },
+        },
+      },
+    },
+  },
+}
+```
+
+On Gateway startup, the plugin starts the built Workspace, stores its product, Collaboration, and
+Blob data below the OpenClaw state directory by default, and points Workspace CLI at the local
+instance. Put an authenticated HTTPS reverse proxy or tunnel in front of that local port. Password
+authentication works without OAuth; provider login requires the corresponding Workspace server
+environment to be configured by a separate deployment service.
+
 ### Choose the URL collaborators open
 
 By default, the CLI builds review links from `workspace.origin`. This is enough for the hosted
 Workspace at `https://workspace.univer.plus/` and for deployments where the API and Web editor use
 the same public URL.
 
-Set `viewerUrl` when collaborators must open a different Web address—for example, a Tailscale,
-intranet, or HTTPS reverse-proxy address:
+Set `viewerUrl` when collaborators must open a different complete Workspace deployment—for example,
+a Tailscale, intranet, or HTTPS reverse-proxy address:
 
 ```json5
 {
@@ -140,7 +185,9 @@ intranet, or HTTPS reverse-proxy address:
 }
 ```
 
-`viewerUrl` changes only the generated review link. Configure the CLI's Workspace API endpoint
+`viewerUrl` changes only the generated review link. It must serve the complete Univer Workspace
+application, including its authenticated product API and collaboration endpoints; a standalone
+Univer editor or custom review shell is not compatible. Configure the CLI's Workspace API endpoint
 separately when needed:
 
 ```bash
@@ -149,8 +196,8 @@ univer-workspace-cli config set workspace.origin https://workspace-api.example.c
 
 Do not share a `localhost` URL; it points back to each recipient's own device. For a Workspace hosted
 on your Mac, give it a stable LAN, Tailscale, or authenticated HTTPS address and use that address as
-`viewerUrl`. Expose the Univer Web/collaboration service—not the OpenClaw Gateway—and keep Workspace
-authentication enabled.
+`viewerUrl`. Expose the complete Univer Workspace Web/API/collaboration service—not the OpenClaw
+Gateway—and keep Workspace authentication enabled.
 
 ## Sign in
 
@@ -218,7 +265,7 @@ For a package-shape smoke test:
 
 ```bash
 npm pack --pack-destination /tmp
-openclaw plugins install npm-pack:/tmp/dream-num-openclaw-univer-office-0.2.0.tgz --force
+openclaw plugins install npm-pack:/tmp/dream-num-openclaw-univer-office-0.5.0.tgz --force
 openclaw plugins inspect univer-office --runtime --json
 ```
 

@@ -29,8 +29,9 @@ do not replace this workflow with a local spreadsheet, document, or slide writer
 - `review_url` may be used while the Worktree is `draft` for live co-editing. Before final
   verification, coordinate with collaborators, inspect the latest content, and avoid marking Ready
   while someone is still editing.
-- The plugin's configured `viewerUrl` supplies the shareable Web base URL. It does not start a server,
-  change `workspace.origin`, or expose the OpenClaw Gateway.
+- The plugin's configured `viewerUrl` supplies the shareable Web base URL. It must point at the
+  complete Univer Workspace application, not a standalone editor or review shell. It does not start
+  a server, change `workspace.origin`, or expose the OpenClaw Gateway.
 
 ## Workflow
 

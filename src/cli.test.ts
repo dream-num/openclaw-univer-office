@@ -36,6 +36,70 @@ describe("parseUniverOfficeConfig", () => {
     });
   });
 
+  it("accepts a complete self-hosted Workspace companion", () => {
+    expect(
+      parseUniverOfficeConfig({
+        viewerUrl: "https://office.example.com",
+        selfHosted: {
+          workspaceRoot: "/srv/univer-workspace/apps/workspace",
+          nodePath: "/opt/node-24/bin/node",
+          port: 3017,
+          dataDir: "/var/lib/univer-workspace",
+        },
+      }),
+    ).toMatchObject({
+      viewerUrl: "https://office.example.com",
+      selfHosted: {
+        workspaceRoot: "/srv/univer-workspace/apps/workspace",
+        nodePath: "/opt/node-24/bin/node",
+        host: "127.0.0.1",
+        port: 3017,
+        dataDir: "/var/lib/univer-workspace",
+      },
+    });
+  });
+
+  it("rejects relative self-hosted executable and application paths", () => {
+    expect(() =>
+      parseUniverOfficeConfig({
+        selfHosted: { workspaceRoot: "apps/workspace", nodePath: "node" },
+      }),
+    ).toThrow(/absolute path/);
+  });
+
+  it.each([
+    [{ selfHosted: "local" }, /selfHosted must be an object/],
+    [
+      {
+        selfHosted: {
+          workspaceRoot: "/srv/univer-workspace/apps/workspace",
+          nodePath: "node",
+        },
+      },
+      /selfHosted.nodePath must be an absolute path/,
+    ],
+  ])("rejects malformed self-hosted config %#", (config, message) => {
+    expect(() => parseUniverOfficeConfig(config)).toThrow(message);
+  });
+
+  it("normalizes an explicit host and invalid port to supported values", () => {
+    expect(
+      parseUniverOfficeConfig({
+        selfHosted: {
+          workspaceRoot: "/srv/univer-workspace/apps/workspace/../workspace",
+          nodePath: "/opt/node-24/bin/node",
+          host: " 0.0.0.0 ",
+          port: 70_000,
+        },
+      }).selfHosted,
+    ).toEqual({
+      workspaceRoot: "/srv/univer-workspace/apps/workspace",
+      nodePath: "/opt/node-24/bin/node",
+      host: "0.0.0.0",
+      port: 3_017,
+    });
+  });
+
   it.each([
     "workspace.example.com",
     "file:///tmp/workspace",
