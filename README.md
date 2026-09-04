@@ -1,5 +1,8 @@
 # Univer Office for OpenClaw
 
+[![CI](https://github.com/dream-num/openclaw-univer-office/actions/workflows/ci.yml/badge.svg)](https://github.com/dream-num/openclaw-univer-office/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+
 Give every OpenClaw a real office where its work can be inspected, edited, approved, and delivered.
 
 `@dream-num/openclaw-univer-office` connects OpenClaw to Univer Workspace. Agents can discover a
@@ -38,10 +41,10 @@ OpenClaw + plugin + CLI on your Mac
 - `univer-workspace-cli` 0.5.1 or newer available on the Gateway host
 - Access to a Univer Workspace deployment
 
-Install the Workspace CLI used by DreamNum deployments:
+Install the Workspace CLI:
 
 ```bash
-npm install -g univer-workspace-cli --registry=https://insider-npm-registry.univer.work/
+npm install -g univer-workspace-cli
 univer-workspace-cli --version
 univer-workspace-cli config get workspace.origin
 ```
@@ -52,9 +55,9 @@ The CLI defaults to `https://workspace.univer.plus/`. Configure another deployme
 univer-workspace-cli config set workspace.origin https://workspace.example.com
 ```
 
-## Install the private GitHub plugin
+## Install from GitHub
 
-Authenticate Git for the private `dream-num` organization, then install from the repository:
+Install the plugin directly from the public repository:
 
 ```bash
 openclaw plugins install git:github.com/dream-num/openclaw-univer-office@main
@@ -265,9 +268,13 @@ For a package-shape smoke test:
 
 ```bash
 npm pack --pack-destination /tmp
-openclaw plugins install npm-pack:/tmp/dream-num-openclaw-univer-office-0.5.0.tgz --force
+openclaw plugins install npm-pack:/tmp/dream-num-openclaw-univer-office-0.5.2.tgz --force
 openclaw plugins inspect univer-office --runtime --json
 ```
+
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the development and pull
+request workflow. Please report security issues through the private process in
+[SECURITY.md](SECURITY.md), not through a public issue.
 
 ## License
 
