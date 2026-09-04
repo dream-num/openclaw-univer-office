@@ -5,7 +5,7 @@
 
 Give every OpenClaw a real office where its work can be inspected, edited, approved, and delivered.
 
-`@dream-num/openclaw-univer-office` connects OpenClaw to Univer Workspace. Agents can discover a
+`@dr-univer/openclaw-univer-office` connects OpenClaw to Univer Workspace. Agents can discover a
 user's personal and team Office files, create isolated task Worktrees, edit Sheet/Doc/Slide/Base/
 Board Units through the exact Univer Facade API, verify structure and layout, and hand a mobile- and
 desktop-friendly review URL back to the user.
@@ -55,9 +55,15 @@ The CLI defaults to `https://workspace.univer.plus/`. Configure another deployme
 univer-workspace-cli config set workspace.origin https://workspace.example.com
 ```
 
-## Install from GitHub
+## Install
 
-Install the plugin directly from the public repository:
+Install the reviewed release from ClawHub:
+
+```bash
+openclaw plugins install clawhub:@dr-univer/openclaw-univer-office
+```
+
+Or install the current source directly from the public GitHub repository:
 
 ```bash
 openclaw plugins install git:github.com/dream-num/openclaw-univer-office@main
@@ -268,7 +274,7 @@ For a package-shape smoke test:
 
 ```bash
 npm pack --pack-destination /tmp
-openclaw plugins install npm-pack:/tmp/dream-num-openclaw-univer-office-0.5.2.tgz --force
+openclaw plugins install npm-pack:/tmp/dr-univer-openclaw-univer-office-0.5.3.tgz --force
 openclaw plugins inspect univer-office --runtime --json
 ```
 
