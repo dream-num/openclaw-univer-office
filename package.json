@@ -1,6 +1,6 @@
 {
   "name": "@dream-num/openclaw-univer-office",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "private": true,
   "description": "Univer Workspace automation, review, and delivery tools for OpenClaw.",
   "type": "module",
@@ -12,7 +12,8 @@
     "build": "npm run clean && tsc -p tsconfig.json",
     "test": "vitest run --config ./vitest.config.ts",
     "test:live": "node scripts/live-smoke.mjs",
-    "check": "npm run build && npm test"
+    "check:dist": "git diff --exit-code -- dist",
+    "check": "npm run build && npm run check:dist && npm test"
   },
   "files": [
     "dist",
